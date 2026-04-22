@@ -6,15 +6,7 @@ Realhand 灵巧手纯 Python SDK。
 
 ## 安装
 
-从 PyPI 安装：
 
-```bash
-# pip
-pip install realhand-py
-
-# uv
-uv add realhand-py
-```
 
 从 Git 仓库安装：
 
