@@ -14,7 +14,7 @@ Pure Python SDK for [Realhand](https://realhand.cn) dexterous hands and robotic 
 ```bash
 # pip
 pip install git+https://github.com/RealHand-Robotics/realbot-python-sdk.git
-
+```
 
 
 ### Arm users
@@ -24,7 +24,7 @@ Arms (A7 / A7 Lite) require Pinocchio for kinematics. Install the `kinetix` extr
 ```bash
 # pip
 pip install "realhand[kinetix] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
-
+```
 
 
 > **Windows users:** Pinocchio does not support pip on Windows. Use `conda install pinocchio -c conda-forge` instead.
