@@ -1,4 +1,4 @@
-# Realhand arm & hand Python SDK
+# Realhand Arm & Hand Python SDK
 
 Pure Python SDK for [Realhand](https://realhand.cn) dexterous hands and robotic arms.
 
