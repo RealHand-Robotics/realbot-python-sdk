@@ -1,6 +1,6 @@
 # Realhand Arm & Hand Python SDK
 
-Pure Python SDK for [Realhand](https://realhand.cn) dexterous hands and robotic arms.
+Pure Python SDK with GUI for [Realhand](https://github.com/RealHand-Robotics/Realhand-python-sdk) dexterous hands and robotic arms.
 
 [![PyPI](https://img.shields.io/pypi/v/realhand)](https://pypi.org/project/realhand/)
 [![GitHub](https://img.shields.io/badge/github-RealHand--Robotics%2Frealbot--python--sdk-blue)](https://github.com/RealHand-Robotics/realbot-python-sdk)
