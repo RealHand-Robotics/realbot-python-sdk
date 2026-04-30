@@ -7,13 +7,19 @@ Pure Python SDK with GUI for [Realhand](https://github.com/RealHand-Robotics/Rea
 
 > **Note:** This project is under active development. APIs may change between versions.
 
-[中文文档](README_zh.md)
+## 🚀 Get Started
+This python sdk supports Realhand dexterous hand O6, L6, L20 and 7 axises arm A7
+[Quick start tutorial](https://realhand-robotics.github.io/realbot-python-sdk-document/)
 
-## Installation
+## 📦 Installation
 
 ```bash
 # pip
 pip install git+https://github.com/RealHand-Robotics/realbot-python-sdk.git
+
+# uv
+uv add "realhand @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
+
 ```
 
 
@@ -24,7 +30,11 @@ Arms (A7 / A7 Lite) require Pinocchio for kinematics. Install the `kinetix` extr
 ```bash
 # pip
 pip install "realhand[kinetix] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
+
+# uv
+uv add "realhand[kinetix] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
 ```
 
 
 > **Windows users:** Pinocchio does not support pip on Windows. Use `conda install pinocchio -c conda-forge` instead.
+
