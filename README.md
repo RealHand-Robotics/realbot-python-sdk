@@ -8,8 +8,9 @@ Pure Python SDK with GUI for [Realhand](https://github.com/RealHand-Robotics/Rea
 > **Note:** This project is under active development. APIs may change between versions.
 
 ## 🚀 Get Started
-This python sdk supports Realhand dexterous hand O6, L6, L20 and 7 axises arm A7
-[Quick start tutorial](https://realhand-robotics.github.io/realbot-python-sdk-document/)
+This python sdk supports Realhand dexterous hand O6, L6, L20 and 7 axises arm A7, A7 Lite.
+We provide detailed tutorial
+🧪 [Quick start tutorial](https://realhand-robotics.github.io/realbot-python-sdk-document/)
 
 ## 📦 Installation
 
