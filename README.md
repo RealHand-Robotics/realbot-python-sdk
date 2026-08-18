@@ -14,10 +14,10 @@ We provide detailed tutorial.
 
 ```bash
 # pip
-pip install git+https://github.com/RealHand-Robotics/realbot-python-sdk-test.git
+pip install git+https://github.com/RealHand-Robotics/realbot-python-sdk.git
 
 # uv
-uv add "realhand @ git+https://github.com/RealHand-Robotics/realbot-python-sdk-test.git"
+uv add "realhand @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
 
 ```
 
@@ -28,10 +28,10 @@ A7 Lite requires Pinocchio for kinematics. Install the `kinetix` extra:
 
 ```bash
 # pip
-pip install "realhand[kinetix] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk-test.git"
+pip install "realhand[kinetix] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
 
 # uv
-uv add "realhand[kinetix] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk-test.git"
+uv add "realhand[kinetix] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
 ```
 
 P7 uses the built-in RBot TCP controller interface and does not require the `kinetix` extra.

@@ -35,9 +35,9 @@ gui = ["PyQt5>=5.15.0"]
 realhand-p7-gui = "realhand.gui.p7:main"
 
 [project.urls]
-Homepage = "https://github.com/RealHand-Robotics/realbot-python-sdk-test"
-Repository = "https://github.com/RealHand-Robotics/realbot-python-sdk-test"
-"Bug Tracker" = "https://github.com/RealHand-Robotics/realbot-python-sdk-test/issues"
+Homepage = "https://github.com/RealHand-Robotics/realbot-python-sdk"
+Repository = "https://github.com/RealHand-Robotics/realbot-python-sdk"
+"Bug Tracker" = "https://github.com/RealHand-Robotics/realbot-python-sdk/issues"
 
 [build-system]
 requires = ["uv_build>=0.9.8,<0.12.0"]
