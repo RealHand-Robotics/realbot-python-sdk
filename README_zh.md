@@ -18,9 +18,9 @@ pip install git+https://github.com/real-hand/realhand-python-sdk.git
 uv add "realhand-py @ git+https://github.com/real-hand/realhand-python-sdk"
 ```
 
-### A7 Lite 机械臂用户
+### A7 / A7 Lite 机械臂用户
 
-A7 Lite 依赖 Pinocchio 进行运动学计算，需要额外安装 `kinetix`：
+A7 / A7 Lite 依赖 Pinocchio 进行运动学计算，需要额外安装 `kinetix`：
 
 ```bash
 # pip

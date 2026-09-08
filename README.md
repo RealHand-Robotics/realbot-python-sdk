@@ -5,7 +5,7 @@ Pure Python SDK with GUI for Realhand dexterous hands and robotic arms.
 > **Note:** This project is under active development. APIs may change between versions.
 
 ## 🚀 Get Started
-This Python SDK supports RealHand dexterous hands O6, L6, L20, L20 Lite, and L25, plus the A7 Lite and P7 robotic arms.
+This Python SDK supports RealHand dexterous hands O6, L6, L20, L20 Lite, and L25, plus the A7, A7 Lite, and P7 robotic arms.
 
 We provide detailed tutorial.
 🧪 [Quick start tutorial](https://realhand-robotics.github.io/realbot-python-sdk-document/)
@@ -22,9 +22,9 @@ uv add "realhand @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.g
 ```
 
 
-### A7 Lite users
+### A7 and A7 Lite users
 
-A7 Lite requires Pinocchio for kinematics. Install the `kinetix` extra:
+A7 and A7 Lite require Pinocchio for kinematics. Install the `kinetix` extra:
 
 ```bash
 # pip
