@@ -1751,11 +1751,14 @@ class HandControlGUI(QWidget):
         return (0, MAX_JOINT_POSITION)
 
     def _setting_slider_default(self, kind: str) -> int:
-        """Return a displayed safe starting value without sending a command."""
+        """Return the established displayed default without sending a command."""
         minimum, maximum = self._setting_slider_bounds(kind)
         if self.model == "L30" and kind in {"speed", "torque", "torque_limit", "acceleration"}:
             return max(minimum, min(round(maximum * 0.85), maximum))
-        return minimum
+        # Preserve the original GUI behavior for existing hands: their global
+        # and per-joint setting sliders begin at the maximum value. L30 uses
+        # the explicit 85% initialization above instead.
+        return maximum
 
     def create_preset_actions_panel(self) -> QWidget:
         panel = QWidget()

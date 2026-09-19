@@ -7,6 +7,21 @@ Pure Python SDK with GUI for Realhand dexterous hands and robotic arms.
 ## 🚀 Get Started
 This Python SDK supports RealHand dexterous hands O6, L6, L20, L20 Lite, L25, and L30, plus the A7, A7 Lite, and P7 robotic arms.
 
+We provide detailed tutorial.
+🧪 [Quick start tutorial](https://realhand-robotics.github.io/realbot-python-sdk-document/)
+
+## 📦 Installation
+
+```bash
+# pip
+python3 -m pip install --upgrade pip
+python3 -m pip install git+https://github.com/RealHand-Robotics/realbot-python-sdk.git
+
+# uv
+uv add "realhand @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
+
+```
+
 ### L30 quick example (metal CANFD analyser)
 
 The L30 uses its native 17-element motor-position vector. Install the
@@ -73,20 +88,6 @@ for event in hand.stream():
 Standalone examples for every public L30 operation are in
 [`examples/l30`](examples/l30/README.md). Examples that change configuration,
 enable joints, move joints, or send an emergency stop execute directly.
-
-We provide detailed tutorial.
-🧪 [Quick start tutorial](https://realhand-robotics.github.io/realbot-python-sdk-document/)
-
-## 📦 Installation
-
-```bash
-# pip
-pip install git+https://github.com/RealHand-Robotics/realbot-python-sdk.git
-
-# uv
-uv add "realhand @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
-
-```
 
 
 ### A7 and A7 Lite users
