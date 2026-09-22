@@ -1828,7 +1828,7 @@ class HandControlGUI(QWidget):
         quick_layout = QVBoxLayout(quick_group)
         quick_layout.addLayout(self._sensor_read_mode_row())
         quick_layout.addLayout(self._live_slider_row("Speed:", "speed"))
-        quick_layout.addLayout(self._live_slider_row("Commanded Current:", "torque"))
+        quick_layout.addLayout(self._live_slider_row("Torque:", "torque"))
         if self.model == "L30" and self.sdk_manager.torque_limit_supported:
             quick_layout.addLayout(self._live_slider_row("Torque Limit:", "torque_limit"))
         if self.model == "O6" or (self.model == "L30" and self.sdk_manager.acceleration_supported):
