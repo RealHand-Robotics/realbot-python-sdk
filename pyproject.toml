@@ -33,6 +33,7 @@ gui = ["PyQt5>=5.15.0"]
 
 [project.scripts]
 realhand-control-gui = "realhand.control_gui:main"
+realhand-install-l30-canfd = "realhand.l30_canfd_install:main"
 realhand-p7-gui = "realhand.gui.p7:main"
 
 [project.urls]

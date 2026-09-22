@@ -43,22 +43,28 @@ The blue/black metal CANFD analyser uses the vendor `libcanbus` transport, not
 SocketCAN. The bundled 64-bit Ubuntu 22.04 library archive is also the
 supported archive for Ubuntu 24.04. It and the required udev rule are in
 `src/realhand/vendor/l30/metal_canfd_analyzer/`. After either a pip or uv
-installation, locate that installed directory and install the files as follows:
+installation, install them with:
 
 ```bash
-L30_CANFD_DIR="$(python3 -c 'from importlib.resources import files; print(files("realhand").joinpath("vendor/l30/metal_canfd_analyzer"))')"
+# After pip or uv installation
+realhand-install-l30-canfd
 
-sudo tar -xvf "$L30_CANFD_DIR/libcanbus(ubuntu22).tar" -C /usr/local/lib/
-sudo ldconfig
-
-sudo install -m 644 "$L30_CANFD_DIR/99-canfd.rules" /etc/udev/rules.d/99-canfd.rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger
+# From a cloned SDK checkout (no Python-package install required)
+./scripts/install_l30_canfd.sh
 ```
 
-Unplug and reconnect the CANFD analyser after installing the udev rule. This
-adapter does **not** create `can0`, so do not configure it with `ip link`; use
-the L30 default `interface_type="libcanbus"` and `canfd_id=0` instead.
+The command prompts for administrator permission, extracts the vendor library
+to `/usr/local/lib`, runs `ldconfig`, installs and reloads the udev rule, and
+then asks you to reconnect the CANFD analyser. This adapter does **not** create
+`can0`, so do not configure it with `ip link`; use the L30 default
+`interface_type="libcanbus"` and `canfd_id=0` instead.
+
+For a Docker container, install only the library because the udev daemon and
+USB permissions belong to the host:
+
+```bash
+realhand-install-l30-canfd --library-only
+```
 
 The bundled library is for 64-bit Ubuntu 22.04 and 24.04. The matching files
 for other platforms remain available in the vendor L30 SDK.
