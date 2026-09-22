@@ -9,9 +9,7 @@ from __future__ import annotations
 
 import threading
 import time
-from collections.abc import Sequence
 from copy import deepcopy
-from dataclasses import dataclass
 from queue import Full
 from typing import Literal
 
@@ -20,6 +18,15 @@ from realhand.queue import IterableQueue
 
 from . import realhand_l30_v6_2_canfd as protocol_v2
 from . import realhand_l30_v6_canfd as protocol_v1
+from .acceleration import AccelerationManager
+from .current import CurrentManager
+from .fault import FaultManager
+from .force_sensor import ForceSensorManager
+from .position import PositionManager, PositionPercentManager
+from .speed import SpeedManager
+from .temperature import TemperatureManager
+from .torque import TorqueLimitManager, TorqueManager
+from .version import InfoManager, L30DeviceInfo, VersionManager
 from .events import (
     AccelerationData,
     AccelerationEvent,
@@ -42,208 +49,8 @@ from .events import (
     TorqueEvent,
 )
 
-JointValues = list[int]
 HandSide = Literal["left", "right"]
 TransportType = Literal["libcanbus", "socketcan"]
-
-
-def _validate_values(name: str, values: Sequence[int], minimum: int, maximum: int) -> JointValues:
-    if len(values) != L30.JOINT_COUNT:
-        raise ValidationError(f"{name} must contain exactly {L30.JOINT_COUNT} values, got {len(values)}")
-    result: JointValues = []
-    for index, value in enumerate(values):
-        if not isinstance(value, int):
-            raise ValidationError(f"{name}[{index}] must be an int, got {type(value).__name__}")
-        if not minimum <= value <= maximum:
-            raise ValidationError(f"{name}[{index}]={value} is outside [{minimum}, {maximum}]")
-        result.append(value)
-    return result
-
-
-class PositionManager:
-    """Control and read L30 native 17-element joint-position values."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def set(self, positions: Sequence[int]) -> None:
-        self._hand._ensure_open()
-        values = _validate_values("positions", positions, -32768, 32767)
-        if not self._hand._motion_enabled:
-            raise StateError("L30 motion is disabled; call enable_all() only after the work area is safe")
-        for index, (value, bounds) in enumerate(zip(values, self._hand._position_ranges())):
-            low, high = bounds
-            if not low <= value <= high:
-                raise ValidationError(
-                    f"positions[{index}]={value} is outside its native safe range [{low}, {high}]"
-                )
-        with self._hand._lock:
-            accepted = self._hand._controller.set_positions(values)
-        if not accepted:
-            raise CANError("L30 rejected the position command")
-
-    def get(self) -> JointValues:
-        return list(self._hand._read_sensor(SensorSource.POSITION).positions)
-
-
-class SpeedManager:
-    """Control and read the 17 native L30 velocity values (0 through 150)."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def set(self, speeds: Sequence[int]) -> None:
-        self._hand._ensure_open()
-        values = _validate_values("speeds", speeds, *self._hand._speed_bounds)
-        with self._hand._lock:
-            accepted = self._hand._controller.set_velocities(values)
-        if not accepted:
-            raise CANError("L30 rejected the speed command")
-
-    def get(self) -> JointValues:
-        return list(self._hand._read_sensor(SensorSource.SPEED).speeds)
-
-
-class AccelerationManager:
-    """Control and read V6 acceleration values (0..254)."""
-
-    MINIMUM = 0
-    MAXIMUM = 254
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    @property
-    def supported(self) -> bool:
-        return hasattr(self._hand._controller, "set_accelerations")
-
-    def set(self, accelerations: Sequence[int]) -> None:
-        self._hand._ensure_open()
-        if not self.supported:
-            raise StateError("The connected L30 protocol does not support acceleration commands")
-        values = _validate_values("accelerations", accelerations, self.MINIMUM, self.MAXIMUM)
-        with self._hand._lock:
-            accepted = self._hand._controller.set_accelerations(values)
-        if not accepted:
-            raise CANError("L30 rejected the acceleration command")
-
-    def get(self) -> JointValues:
-        if not self.supported:
-            raise StateError("The connected L30 protocol does not support acceleration reads")
-        return list(self._hand._read_sensor(SensorSource.ACCELERATION).accelerations)
-
-
-class TorqueManager:
-    """Control commanded motor current and read its native feedback values."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def set_commanded(self, currents: Sequence[int]) -> None:
-        self._hand._ensure_open()
-        values = _validate_values("commanded current", currents, *self._hand._torque_bounds)
-        with self._hand._lock:
-            accepted = self._hand._controller.set_torques(values)
-        if not accepted:
-            raise CANError("L30 rejected the commanded-current command")
-
-    # Compatibility with the original GUI integration.  This sends the
-    # commanded-current command, not the separate V6 torque-limit command.
-    def set_limits(self, values: Sequence[int]) -> None:
-        self.set_commanded(values)
-
-    def get(self) -> JointValues:
-        return list(self._hand._read_sensor(SensorSource.TORQUE).torques)
-
-
-class TorqueLimitManager:
-    """Set the separate V6 torque-limit threshold (0..1000, 0.1% units)."""
-
-    MINIMUM = 0
-    MAXIMUM = 1000
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    @property
-    def supported(self) -> bool:
-        return hasattr(self._hand._controller, "set_torque_limits")
-
-    def set(self, limits: Sequence[int]) -> None:
-        self._hand._ensure_open()
-        if not self.supported:
-            raise StateError("The connected L30 protocol does not support torque-limit commands")
-        values = _validate_values("torque limits", limits, self.MINIMUM, self.MAXIMUM)
-        with self._hand._lock:
-            accepted = self._hand._controller.set_torque_limits(values)
-        if not accepted:
-            raise CANError("L30 rejected the torque-limit command")
-
-
-class TemperatureManager:
-    """Read the 17 L30 motor temperatures."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def get(self) -> JointValues:
-        return list(self._hand._read_sensor(SensorSource.TEMPERATURE).temperatures)
-
-
-class CurrentManager:
-    """Read the 17 L30 motor-current values."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def get(self) -> JointValues:
-        return list(self._hand._read_sensor(SensorSource.CURRENT).currents)
-
-
-class ForceSensorManager:
-    """Read the five fingertip 12×6 pressure matrices."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def get(self) -> dict[str, list[int]]:
-        return deepcopy(self._hand._read_sensor(SensorSource.FORCE_SENSOR).matrices)
-
-
-class FaultManager:
-    """Read the native error code for each of the 17 L30 joints."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def get(self) -> FaultData:
-        return self._hand._read_sensor(SensorSource.FAULT)
-
-
-class InfoManager:
-    """Read serial number, versions, and other L30 device metadata."""
-
-    def __init__(self, hand: "L30") -> None:
-        self._hand = hand
-
-    def get(self) -> "L30DeviceInfo":
-        return self._hand._read_device_info()
-
-
-@dataclass(frozen=True)
-class L30DeviceInfo:
-    """Normalized metadata from either supported L30 firmware protocol."""
-
-    serial_number: int | None
-    product_code: str | None
-    node_id: int | None
-    hand_type: str | None
-    software_version: str | None
-    hardware_version: str | None
-    mechanical_version: str | None
-    structure_version: str | None
-    sensor_type: int | None
-    origin: int | None
 
 
 class L30:
@@ -319,6 +126,7 @@ class L30:
         self._speed_bounds = (1, 150) if self._using_v62_protocol else (0, 150)
 
         self.position = PositionManager(self)
+        self.position_percent = PositionPercentManager(self)
         self.speed = SpeedManager(self)
         self.acceleration = AccelerationManager(self)
         self.torque = TorqueManager(self)
@@ -327,7 +135,9 @@ class L30:
         self.current = CurrentManager(self)
         self.fault = FaultManager(self)
         self.force_sensor = ForceSensorManager(self)
-        self.info = InfoManager(self)
+        self.version = VersionManager(self)
+        # ``info`` remains the original L30 public name.
+        self.info: InfoManager = self.version
         self.start_polling()
 
     def _connect(self, **kwargs):
@@ -395,6 +205,11 @@ class L30:
                 force_sensor=self._force_sensor,
                 timestamp=time.time(),
             )
+
+    def _sensor_snapshot(self, source: SensorSource):
+        """Return one cached source reading for manager-level snapshots."""
+        with self._snapshot_lock:
+            return deepcopy(getattr(self, f"_{source.value}"))
 
     def stream(self, maxsize: int = 100) -> IterableQueue[SensorEvent]:
         """Return a queue that receives readings produced by polling.

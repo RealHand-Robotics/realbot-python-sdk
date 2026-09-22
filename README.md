@@ -22,23 +22,36 @@ uv add "realhand @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.g
 
 ```
 
-### L30 quick example (metal CANFD analyser)
+### Optional desktop GUI
 
-The L30 uses its native 17-element motor-position vector. Install the
-matching vendor `libcanbus` library under `/usr/local/lib` before use. The L30
-API is direct Python and does not require ROS 2.
-
-#### Install libcanbus (Ubuntu 22.04, metal USB CANFD analyser)
-
-The blue/black metal CANFD analyser uses the vendor `libcanbus` transport, not
-SocketCAN. From the directory that contains the vendor-supplied
-`libcanbus(ubuntu22).tar` and `99-canfd.rules` files, run:
+Install the `gui` extra to use the hand-control GUI, including L30
+autodetection:
 
 ```bash
-sudo tar -xvf "libcanbus(ubuntu22).tar" -C /usr/local/lib/
+# pip
+python3 -m pip install "realhand[gui] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
+realhand-control-gui
+
+# uv
+uv add "realhand[gui] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
+uv run realhand-control-gui
+```
+
+### L30 metal CANFD analyser
+
+The blue/black metal CANFD analyser uses the vendor `libcanbus` transport, not
+SocketCAN. The bundled 64-bit Ubuntu 22.04 library archive is also the
+supported archive for Ubuntu 24.04. It and the required udev rule are in
+`src/realhand/vendor/l30/metal_canfd_analyzer/`. After either a pip or uv
+installation, locate that installed directory and install the files as follows:
+
+```bash
+L30_CANFD_DIR="$(python3 -c 'from importlib.resources import files; print(files("realhand").joinpath("vendor/l30/metal_canfd_analyzer"))')"
+
+sudo tar -xvf "$L30_CANFD_DIR/libcanbus(ubuntu22).tar" -C /usr/local/lib/
 sudo ldconfig
 
-sudo install -m 644 99-canfd.rules /etc/udev/rules.d/99-canfd.rules
+sudo install -m 644 "$L30_CANFD_DIR/99-canfd.rules" /etc/udev/rules.d/99-canfd.rules
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
@@ -47,48 +60,8 @@ Unplug and reconnect the CANFD analyser after installing the udev rule. This
 adapter does **not** create `can0`, so do not configure it with `ip link`; use
 the L30 default `interface_type="libcanbus"` and `canfd_id=0` instead.
 
-```python
-from realhand import L30
-
-with L30(side="right", canfd_id=0) as hand:
-    # Confirm the hand's workspace is clear before enabling motion.
-    hand.enable_all()
-    hand.speed.set([50] * 17)
-
-    # Send a position only after confirming the 17 values are safe for the
-    # connected hand and its surroundings.
-    # hand.position.set([...])
-
-    print(hand.position.get())  # read-only
-    print(hand.info.get().serial_number)
-    print(hand.fault.get().error_codes)
-    hand.disable_all()
-```
-
-For safety, connecting an L30 does not enable its joints. `position.set()` is
-blocked until `enable_all()` succeeds, and it rejects any value outside the
-connected hand's native per-joint range.
-
-The L30 also provides cached snapshots and a polling-backed event stream:
-
-```python
-from realhand.hand.l30 import SensorSource
-
-hand.start_polling({
-    SensorSource.POSITION: 1 / 30,
-    SensorSource.TEMPERATURE: 1.0,
-    SensorSource.FORCE_SENSOR: 1 / 15,
-})
-snapshot = hand.get_snapshot()
-
-for event in hand.stream():
-    print(event)
-```
-
-Standalone examples for every public L30 operation are in
-[`examples/l30`](examples/l30/README.md). Examples that change configuration,
-enable joints, move joints, or send an emergency stop execute directly.
-
+The bundled library is for 64-bit Ubuntu 22.04 and 24.04. The matching files
+for other platforms remain available in the vendor L30 SDK.
 
 ### A7 and A7 Lite users
 
@@ -111,9 +84,51 @@ not require ROS 2 or a container. It starts disconnected and does not enable or
 move the arm until you connect and send a command.
 
 ```bash
-pip install -e ".[gui]"
+python3 -m pip install "realhand[gui] @ git+https://github.com/RealHand-Robotics/realbot-python-sdk.git"
 realhand-p7-gui
 ```
+
+## L30 quick example
+
+The L30 uses its native 17-element integer motor-position vector.
+
+```python
+from realhand import L30
+
+with L30(side="right", canfd_id=0) as hand:
+    # Confirm the hand's workspace is clear before enabling motion.
+    hand.enable_all()
+    hand.position.set([0] * 17)  # native L30 home position
+
+    print(hand.position.get())
+    print(hand.info.get().serial_number)
+    print(hand.fault.get().error_codes)
+    hand.disable_all()
+```
+
+For safety, connecting an L30 does not enable its joints. `position.set()` is
+blocked until `enable_all()` succeeds. Use only values in the connected hand's
+native per-joint ranges.
+
+The L30 also provides cached snapshots and a polling-backed event stream:
+
+```python
+from realhand.hand.l30 import SensorSource
+
+hand.start_polling({
+    SensorSource.POSITION: 1 / 30,
+    SensorSource.TEMPERATURE: 1.0,
+    SensorSource.FORCE_SENSOR: 1 / 15,
+})
+snapshot = hand.get_snapshot()
+
+for event in hand.stream():
+    print(event)
+```
+
+Standalone examples for every public L30 operation are in `examples/l30/`.
+Examples that change configuration, enable joints, move joints, or send an
+emergency stop execute directly.
 
 ## P7 quick example
 

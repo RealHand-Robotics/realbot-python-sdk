@@ -20,11 +20,13 @@ from realhand.hand.l30.l30 import (
     ForceSensorManager,
     InfoManager,
     PositionManager,
+    PositionPercentManager,
     SpeedManager,
     TemperatureManager,
     TorqueLimitManager,
     TorqueManager,
 )
+from realhand.hand.l30.version import VersionManager
 
 
 class FakeProtocol:
@@ -103,6 +105,7 @@ def make_l30(*, acceleration_supported: bool = True, torque_limit_supported: boo
     hand._speed_bounds = (0, 150)
     hand._torque_bounds = (-2047, 2047)
     hand.position = PositionManager(hand)
+    hand.position_percent = PositionPercentManager(hand)
     hand.speed = SpeedManager(hand)
     hand.acceleration = AccelerationManager(hand)
     hand.torque = TorqueManager(hand)
@@ -111,7 +114,8 @@ def make_l30(*, acceleration_supported: bool = True, torque_limit_supported: boo
     hand.current = CurrentManager(hand)
     hand.fault = FaultManager(hand)
     hand.force_sensor = ForceSensorManager(hand)
-    hand.info = InfoManager(hand)
+    hand.version = VersionManager(hand)
+    hand.info = hand.version
     return hand
 
 

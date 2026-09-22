@@ -32,6 +32,7 @@ kinetix = ["pin>=3.9.0"]
 gui = ["PyQt5>=5.15.0"]
 
 [project.scripts]
+realhand-control-gui = "realhand.control_gui:main"
 realhand-p7-gui = "realhand.gui.p7:main"
 
 [project.urls]
